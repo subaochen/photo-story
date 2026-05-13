@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+dist/
+
+# 上下文传递工程 - 会话目录（运行时创建）
+sessions/
