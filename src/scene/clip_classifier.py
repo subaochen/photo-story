@@ -3,6 +3,7 @@
 使用 CLIP 模型对照片进行场景分类，区分风景/美食/人物/建筑等。
 """
 
+import os
 import torch
 from PIL import Image
 from typing import List, Tuple, Dict, Optional
@@ -48,8 +49,18 @@ def _load_model():
         _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"加载 CLIP 模型到 {_device}...")
 
-        _model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-        _processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        # 临时清除代理环境变量（SOCKS5 代理会干扰模型下载）
+        old_env = {}
+        for key in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY", "all_proxy", "ALL_PROXY"):
+            old_env[key] = os.environ.pop(key, None)
+
+        try:
+            _model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+            _processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        finally:
+            for key, val in old_env.items():
+                if val is not None:
+                    os.environ[key] = val
         _model.to(_device)
         _model.eval()
 

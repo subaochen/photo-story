@@ -4,6 +4,7 @@
 基于余弦相似度进行精细去重。
 """
 
+import os
 import numpy as np
 from typing import List, Optional
 from sklearn.metrics.pairwise import cosine_similarity
@@ -31,8 +32,19 @@ def _load_model() -> tuple:
         _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"加载 CLIP ViT-B/32 模型到 {_device}...")
 
-        _model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-        _processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        # 临时清除代理环境变量（SOCKS5 代理会干扰模型下载）
+        old_env = {}
+        for key in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY", "all_proxy", "ALL_PROXY"):
+            old_env[key] = os.environ.pop(key, None)
+
+        try:
+            _model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+            _processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        finally:
+            # 恢复代理环境变量
+            for key, val in old_env.items():
+                if val is not None:
+                    os.environ[key] = val
         _model.to(_device)
         _model.eval()
 
