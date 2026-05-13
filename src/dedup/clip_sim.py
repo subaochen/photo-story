@@ -80,7 +80,7 @@ def compute_clip_embeddings(image_paths: List[str]) -> np.ndarray:
 
         with torch.no_grad():
             outputs = model.get_image_features(**inputs)
-            batch_embeddings = outputs.cpu().numpy()
+            batch_embeddings = outputs.pooler_output.cpu().numpy()
             embeddings.append(batch_embeddings)
 
     if not embeddings:
