@@ -5,3 +5,6 @@ dist/
 
 # 上下文传递工程 - 会话目录（运行时创建）
 sessions/
+.venv/
+data/test_input/
+data/test_output/
