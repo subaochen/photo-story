@@ -1,6 +1,6 @@
 import os
 import uuid
-import hashlib
+import bcrypt as _bcrypt
 from datetime import datetime, timedelta
 from typing import Optional, Dict
 
@@ -28,7 +28,11 @@ def get_token_expire_delta() -> timedelta:
 
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
+
+
+def verify_password(password: str, hashed: str) -> bool:
+    return _bcrypt.checkpw(password.encode(), hashed.encode())
 
 
 def create_user(username: str, password: str) -> dict:
@@ -50,7 +54,7 @@ def authenticate_user(username: str, password: str) -> Optional[dict]:
     user = users.get(username)
     if not user:
         return None
-    if user["password_hash"] != hash_password(password):
+    if not verify_password(password, user["password_hash"]):
         return None
     return user
 

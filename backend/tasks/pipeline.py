@@ -1,3 +1,4 @@
+import asyncio
 import sys
 import logging
 from pathlib import Path
@@ -56,7 +57,8 @@ async def execute_pipeline(
         update_progress(task_id, progress=80, stage="cluster")
         await manager.broadcast(task_id, {"type": "progress", "progress": 80, "stage": "cluster"})
 
-        result = run_pipeline_verbose(
+        result = await asyncio.to_thread(
+            run_pipeline_verbose,
             input_dir=input_dir,
             output_dir=output_dir,
             top_k=top_k,

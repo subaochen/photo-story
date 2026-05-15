@@ -6,7 +6,7 @@ import json
 import shutil
 import logging
 from typing import Dict, Any, Set
-from pathlib import Path
+from pathlib import Path, PurePath
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Header, Form
@@ -119,7 +119,8 @@ async def complete_upload(request: CompleteRequest):
         if not chunk_path.exists():
             raise HTTPException(status_code=400, detail=f"分块 {i} 文件不存在")
 
-    output_path = upload_dir / task["filename"]
+    safe_name = Path(PurePath(task["filename"]).name)
+    output_path = upload_dir / safe_name
     with open(output_path, "wb") as out:
         for i in range(task["total_chunks"]):
             chunk_path = upload_dir / f"{i}.part"

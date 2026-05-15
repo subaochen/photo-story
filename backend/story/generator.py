@@ -144,11 +144,7 @@ async def generate_story_async(task_id: str, photos: list, metadata: dict, templ
         await state_update_fn(task_id, "completed", 100, result=story)
         
         if ws_manager:
-            await ws_manager.broadcast({
-                "type": "story_completed",
-                "task_id": task_id,
-                "story": story
-            })
+            await ws_manager.broadcast(task_id, {"type": "story_completed", "story": story})
         
         logger.info(f"Story generation task {task_id} completed")
         
@@ -158,8 +154,4 @@ async def generate_story_async(task_id: str, photos: list, metadata: dict, templ
         await state_update_fn(task_id, "failed", 0, error=str(e))
         
         if ws_manager:
-            await ws_manager.broadcast({
-                "type": "story_failed",
-                "task_id": task_id,
-                "error": str(e)
-            })
+            await ws_manager.broadcast(task_id, {"type": "story_failed", "error": str(e)})
