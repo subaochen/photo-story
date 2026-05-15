@@ -10,10 +10,10 @@ from .state import (
     ConnectionManager,
     manager,
     router,
+    ws_router,
 )
 from .pipeline import (
     execute_pipeline,
-    ws_router,
 )
 
 __all__ = [
