@@ -184,3 +184,75 @@ def rank_by_aesthetics(
     """
     results = batch_predict(image_paths)
     return results[:top_k]
+
+
+def rank_with_details(
+    image_paths: List[str],
+    top_k: int = 100,
+) -> dict:
+    """按美学评分排序（verbose 版本）
+
+    返回带排名信息的评分结果，包含：
+    - 每张照片的评分
+    - 排名
+    - 统计信息（平均分、最高分、最低分）
+
+    Args:
+        image_paths: 图片路径列表
+        top_k: 保留数量
+
+    Returns:
+        dict: 包含评分、排名和统计信息的字典
+    """
+    logger.info(f"美学评分（verbose）开始：{len(image_paths)} 张")
+
+    results = batch_predict(image_paths)
+    total_count = len(results)
+
+    if total_count == 0:
+        return {
+            "ranking": [],
+            "statistics": {
+                "total": 0,
+                "top_k": 0,
+                "average_score": 0,
+                "max_score": 0,
+                "min_score": 0
+            },
+            "metadata": {
+                "input_count": len(image_paths),
+                "processed_count": 0
+            }
+        }
+
+    # 计算统计信息
+    scores = [score for _, score in results]
+    avg_score = sum(scores) / len(scores)
+    max_score = max(scores)
+    min_score = min(scores)
+
+    # 构建排名结果
+    ranking = []
+    for i, (path, score) in enumerate(results[:top_k], 1):
+        ranking.append({
+            "rank": i,
+            "path": path,
+            "score": score
+        })
+
+    logger.info(f"美学评分（verbose）完成：选出前 {len(ranking)} 张")
+
+    return {
+        "ranking": ranking,
+        "statistics": {
+            "total": total_count,
+            "top_k": len(ranking),
+            "average_score": round(avg_score, 2),
+            "max_score": round(max_score, 2),
+            "min_score": round(min_score, 2)
+        },
+        "metadata": {
+            "input_count": len(image_paths),
+            "processed_count": total_count
+        }
+    }

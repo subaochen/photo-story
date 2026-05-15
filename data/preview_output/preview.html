@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照片筛选预览 - PhotoTrim</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #333; }
+        .stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
+        .stat-card { background: white; padding: 15px 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .stat-card .number { font-size: 32px; font-weight: bold; }
+        .stat-card .label { font-size: 14px; color: #666; }
+        .stat-kept .number { color: #4CAF50; }
+        .stat-removed .number { color: #f44336; }
+        .section { margin-bottom: 40px; }
+        .section-title { font-size: 22px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #ddd; }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .photo-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .photo-card:hover { transform: translateY(-3px); }
+        .photo-card img { width: 100%; height: 180px; object-fit: cover; }
+        .photo-info { padding: 12px; }
+        .photo-name { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 5px; word-break: break-all; }
+        .photo-score { font-size: 12px; color: #666; }
+        .score-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .score-high { background: #e8f5e9; color: #2e7d32; }
+        .score-mid { background: #fff3e0; color: #e65100; }
+        .score-low { background: #ffebee; color: #c62828; }
+        .reason { font-size: 11px; color: #888; margin-top: 5px; }
+        .removed-section { opacity: 0.85; }
+        .comparison { display: flex; gap: 10px; align-items: flex-start; margin: 10px 0; padding: 10px; background: #fafafa; border-radius: 8px; }
+        .comparison img { width: 100px; height: 100px; object-fit: cover; border-radius: 5px; }
+        .comparison-info { flex: 1; }
+        .vs { font-size: 18px; font-weight: bold; color: #999; }
+        .filter { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .filter button { padding: 8px 20px; border: 1px solid #ddd; background: white; border-radius: 20px; cursor: pointer; }
+        .filter button.active { background: #2196F3; color: white; border-color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📸 照片筛选预览</h1>
+        <p>输入目录: data/test_input</p>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="number">20</div>
+            <div class="label">原始照片</div>
+        </div>
+        <div class="stat-card stat-kept">
+            <div class="number">2</div>
+            <div class="label">保留</div>
+        </div>
+        <div class="stat-card stat-removed">
+            <div class="number">18</div>
+            <div class="label">剔除</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">✅ 保留的照片（2 张）</h2>
+        <div class="photo-grid">
+            <div class="photo-card">
+                <img src="thumbs/similar_0_a_thumb.jpg" alt="similar_0_a.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_0_a.jpg</div>
+                    <div class="photo-score">
+                        美学评分: <span class="score-badge score-high">100%</span>
+                    </div>
+                    <div class="reason">✅ 去重后保留，评分排名前 2</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_0_thumb.jpg" alt="unique_0.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_0.jpg</div>
+                    <div class="photo-score">
+                        美学评分: <span class="score-badge score-high">89%</span>
+                    </div>
+                    <div class="reason">✅ 去重后保留，评分排名前 2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section removed-section">
+        <h2 class="section-title">❌ dHash 去重剔除（18 张）</h2>
+        <p style="color:#666;margin-bottom:15px;">以下照片因与保留照片过于相似（dHash 海明距离 < 5）被剔除：</p>
+        <div class="photo-grid">
+            <div class="photo-card">
+                <img src="thumbs/similar_0_b_thumb.jpg" alt="similar_0_b.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_0_b.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_1_a_thumb.jpg" alt="similar_1_a.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_1_a.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_1_b_thumb.jpg" alt="similar_1_b.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_1_b.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_2_a_thumb.jpg" alt="similar_2_a.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_2_a.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_2_b_thumb.jpg" alt="similar_2_b.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_2_b.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_3_a_thumb.jpg" alt="similar_3_a.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_3_a.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_3_b_thumb.jpg" alt="similar_3_b.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_3_b.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_4_a_thumb.jpg" alt="similar_4_a.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_4_a.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/similar_4_b_thumb.jpg" alt="similar_4_b.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">similar_4_b.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 similar_0_a.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: similar_0_a.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_1_thumb.jpg" alt="unique_1.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_1.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=1 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_2_thumb.jpg" alt="unique_2.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_2.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_3_thumb.jpg" alt="unique_3.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_3.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=1 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_4_thumb.jpg" alt="unique_4.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_4.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=1 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_5_thumb.jpg" alt="unique_5.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_5.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=2 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_6_thumb.jpg" alt="unique_6.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_6.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=0 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_7_thumb.jpg" alt="unique_7.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_7.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=1 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_8_thumb.jpg" alt="unique_8.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_8.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=1 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="thumbs/unique_9_thumb.jpg" alt="unique_9.jpg">
+                <div class="photo-info">
+                    <div class="photo-name">unique_9.jpg</div>
+                    <div class="reason">❌ dHash 去重（与 unique_0.jpg 海明距离=1 < 5）</div>
+                    <div class="reason">相似保留: unique_0.jpg</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

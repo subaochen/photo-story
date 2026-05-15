@@ -9,3 +9,7 @@ transformers==4.38.0
 mediapipe==0.10.14
 exifread==3.0.0
 tqdm==4.66.2
+fastapi==0.109.0
+uvicorn==0.27.1
+python-multipart==0.0.9
+streamlit==1.32.0

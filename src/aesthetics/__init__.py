@@ -27,6 +27,11 @@ def rank_by_aesthetics(image_paths: List[str], top_k: int = 100) -> List[Tuple[s
     return rank_by_aesthetics(image_paths, top_k)
 
 
+def rank_with_details(image_paths: List[str], top_k: int = 100) -> dict:
+    from .nima import rank_with_details
+    return rank_with_details(image_paths, top_k)
+
+
 def heuristic_aesthetic_score(image_path: str) -> float:
     from .heuristic import heuristic_aesthetic_score
     return heuristic_aesthetic_score(image_path)
@@ -57,6 +62,7 @@ __all__ = [
     "predict_aesthetic_score",
     "batch_predict",
     "rank_by_aesthetics",
+    "rank_with_details",
     "heuristic_aesthetic_score",
     "batch_heuristic",
     "brightness_score",

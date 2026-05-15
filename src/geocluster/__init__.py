@@ -28,10 +28,16 @@ def hybrid_cluster(image_paths: List[str]) -> Dict[str, List[str]]:
     return hybrid_cluster(image_paths)
 
 
+def cluster_images(image_paths: List[str]) -> dict:
+    from .gps_cluster import cluster_images
+    return cluster_images(image_paths)
+
+
 __all__ = [
     "extract_gps",
     "extract_timestamp",
     "cluster_by_location",
     "cluster_by_time",
     "hybrid_cluster",
+    "cluster_images",
 ]

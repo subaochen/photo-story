@@ -327,3 +327,39 @@ def hybrid_cluster(image_paths: List[str]) -> Dict[str, List[str]]:
         result["全部照片"] = sorted(image_paths)
 
     return result
+
+
+def cluster_images(image_paths: List[str]) -> dict:
+    """综合聚类：地点 + 时间
+
+    Args:
+        image_paths: 图片路径列表
+
+    Returns:
+        dict: 包含 clusters 和 summary 的字典
+    """
+    # 执行混合聚类
+    raw_clusters = hybrid_cluster(image_paths)
+
+    # 构建 clusters 列表
+    clusters = []
+    for name, paths in raw_clusters.items():
+        clusters.append({
+            "name": name,
+            "count": len(paths),
+            "paths": paths
+        })
+
+    # 统计信息
+    gps_count = sum(1 for p in image_paths if extract_gps(p))
+    time_count = sum(1 for p in image_paths if extract_timestamp(p))
+
+    return {
+        "clusters": clusters,
+        "summary": {
+            "total_images": len(image_paths),
+            "cluster_count": len(clusters),
+            "images_with_gps": gps_count,
+            "images_with_time": time_count
+        }
+    }
