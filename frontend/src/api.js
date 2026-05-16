@@ -1,5 +1,5 @@
-const API_BASE = 'http://localhost:8000/api/v1';
-const WS_BASE = 'ws://localhost:8000';
+export const API_BASE = 'http://localhost:8000/api/v1';
+export const WS_BASE = 'ws://localhost:8000';
 
 export async function api(method, path, body, token) {
   const headers = { 'Content-Type': 'application/json' };

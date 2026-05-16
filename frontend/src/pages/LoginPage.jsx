@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../api';
 
 function LoginPage({ onLogin }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -12,7 +13,7 @@ function LoginPage({ onLogin }) {
 
     try {
       const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const response = await fetch(`http://localhost:8000/api/v1${endpoint}`, {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

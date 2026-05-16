@@ -11,24 +11,24 @@ import './index.css'
 import './App.css'
 
 function App() {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || '')
-  const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('currentUser') || '')
+  const [token, setToken] = useState(() => sessionStorage.getItem('token') || '')
+  const [currentUser, setCurrentUser] = useState(() => sessionStorage.getItem('currentUser') || '')
   const [currentTaskId, setCurrentTaskId] = useState('')
   const [uploadFiles, setUploadFiles] = useState([])
 
   const navigate = useNavigate()
 
   const handleLogin = (token, username) => {
-    localStorage.setItem('token', token)
-    localStorage.setItem('currentUser', username)
+    sessionStorage.setItem('token', token)
+    sessionStorage.setItem('currentUser', username)
     setToken(token)
     setCurrentUser(username)
     navigate('/upload')
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('currentUser')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('currentUser')
     setToken('')
     setCurrentUser('')
     navigate('/login')

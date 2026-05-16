@@ -84,7 +84,7 @@ function UploadPage({ token, onFilesSelected, onTaskCreated }) {
 
       // 这里需要根据后端实际的 multipart 上传方式调整
       // 假设后端接受多文件上传
-      const uploadResponse = await fetch('http://localhost:8000/api/v1/upload/chunk', {
+      const uploadResponse = await fetch(`${API_BASE}/upload/chunk`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
